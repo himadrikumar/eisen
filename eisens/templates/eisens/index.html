@@ -1,0 +1,244 @@
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ToDo List</title>
+    <style>
+        html {
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            font-optical-sizing: auto;
+            font-weight: <weight>;
+            font-style: normal;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+        ul {
+            padding: 0;
+        }
+
+        a, a:active, a:hover {
+            color: black;
+            text-decoration: none;
+        }
+
+        .side-bar {
+            height: 100vh;
+            border: solid black 1px;
+            display: inline-block;
+            width: fit-content;
+            float: left;
+            padding: 40px;
+            text-align: left;
+            overflow: scroll;
+        }
+
+        .del button {
+            background: transparent;
+            border: none;
+            color: #474747;
+        }
+
+        .del {
+            text-align: right;
+            width: -webkit-fill-available;
+            float: right;
+            position: relative;
+            top: -39px;
+        }
+
+        .edit {
+            background: transparent;
+            border: none;
+            color: #474747;
+            text-align: right;
+            width: -webkit-fill-available;
+            position: relative;
+            bottom: 19px;
+            z-index: 100;
+            margin-right: 40px;
+        }
+
+        .tog {
+            background: transparent;
+            border: none;
+            color: #474747;
+            text-align: right;
+            position: relative;
+            bottom: 55px;
+            z-index: 100;
+            margin-right: 75px;
+            font-weight: heavy;
+            float: right;
+        }
+
+        i {
+            transition: color 0.5s;
+        }
+
+        i:hover {
+            color: darkcyan;
+        }
+
+        .box {
+            height: 50%;
+            width: 50%;
+            border-radius: 20px;
+            // box-shadow: inset 0 0 1px;
+        }
+
+        .box li {
+            text-align: left;
+            list-style-type: auto;
+            margin-left: 50px;
+        }
+
+        .box:nth-child(1), .box:nth-child(2) {
+            float: left;
+        }
+
+        .box:nth-child(3), .box:nth-child(4) {
+            float: right;
+        }
+
+        .box:nth-child(1) {
+            background: #ae2525;
+            color: white;
+        }
+
+        .box:nth-child(1) li {
+            font-style: bold;
+        }
+
+        .box:nth-child(3) {
+            background: #272762;
+            color: white;
+        }
+
+        .box:nth-child(2) {
+            background: #e4faff;
+            color: #272762;
+        }
+
+        .box:nth-child(4) {
+            background: #ffd0c1;
+            color: #272762;
+        }
+
+        .box-cont {
+            height: 91vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        input, select {
+            border: none;
+            background: #e8e8e8;
+            width: -webkit-fill-available;
+            height: 25px;
+            margin-top: 7px;
+        }
+
+        span {
+            display: block;
+            width: 70%;
+        }
+
+        .completed {
+            text-decoration: line-through !important;
+            color: gray;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
+</head>
+<body>
+<h1 style="display: inline-block;">To Do List</h1>
+        <div class="side-bar">
+            <form action="{% url 'eisens:index' %}" method="get">
+                <label for="date">Filter by Date:</label>
+                <select name="date" id="date" onchange="this.form.submit()">
+                    {% for date in task_dates %}
+                        <option value="{{ date|date:'Y-m-d' }}"
+                            {% if date == filter_date %}selected{% endif %}>
+                            {{ date|date:'F j, Y' }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+                <div class="add">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="hidden" name="add_task" value="true">
+                        <button type="submit">Add Task</button>
+                    </form>
+                    <br><br>
+                </div>
+            <ul>
+                <h2>All Tasks</h2>
+                {% for category in categories %}
+                    <ul>
+                        {% for task in category.filtered_tasks %}
+                            <li {% if task.completed == True %} class="completed" {% endif %}>{% if task.id|stringformat:"s" == edit_task_id %}
+                                <!-- Edit form for the selected task -->
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        {{ edit_form.as_p }}
+                                        <button type="submit" style="background: transparent; border: solid black 1px; font-family: 'Montserrat', sans-serif; padding: 11.3px 20px;" name="edit_task">Save</button>
+                                        <a style="background: transparent; border: solid black 1px; padding: 10px 20px;" href="{% url 'eisens:index' %}">Cancel</a>
+                                    </form>
+                                {% else %}
+                                <!-- Display task text with Edit button -->
+                                    <span>{{ task.text }}</span>
+                                    <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
+                                {% endif %}
+                                <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
+                                </form>
+                                <!-- Mark task as complete -->
+                                <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                                    <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+        </div>
+<div class="box-cont">
+        {% for category in categories %}
+        <div class="box">
+            <h2>{{ category.name }}</h2>
+            <ul>
+                {% for task in category.filtered_tasks %}
+                    {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}
+                        <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0; font-style: italic;">{{task.text}}</li>
+                    {% else %}
+                        <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0;">{{task.text}}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+</div>
+<script src="https://kit.fontawesome.com/ab7d1b5960.js" crossorigin="anonymous"></script>
+</body>
+</html>
+{% endblock content %}
