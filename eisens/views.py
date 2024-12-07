@@ -2,31 +2,50 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Task
 from .forms import TaskForm
 from datetime import date, timedelta
+from django.contrib.auth.decorators import login_required
+
 
 from datetime import datetime
 
+
+@login_required
 def index(request):
+    # Get today's date
     today = date.today()
     tomorrow = today + timedelta(days=1)
 
-    # Only carry forward tasks that haven't been carried forward yet
-    incomplete_tasks = Task.objects.filter(date_added__date__lt=today, completed=False)
+    # Check if the carry-forward logic has already run for today
+    carry_forward_done = request.session.get('carry_forward_done', None)
 
-    for task in incomplete_tasks:
-        # Check if a task with the same text already exists for today to avoid duplication
-        if not Task.objects.filter(text=task.text, category=task.category, date_added__date=today).exists():
-            # Create the carried forward task with updated date_added to today
-            Task.objects.create(
-                category=task.category,
-                text=task.text,
-                date_added=tomorrow  # Set the new date_added to tomorrow
-            )
+    if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
+        # Carry forward only incomplete tasks from previous days
+        tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
+
+        for task in tasks:
+            if not task.completed:
+                if not Task.objects.filter(
+                    text=task.text,
+                    category=task.category,
+                    date_added__date=today,
+                    completed=False,
+                    owner=request.user
+                ).exists():
+                    Task.objects.create(
+                        category=task.category,
+                        text=task.text,
+                        date_added=tomorrow,  # Set the new date_added to tomorrow
+                        completed=False,  # Ensure carried-forward tasks are incomplete
+                        owner=request.user
+                    )
+
+        # Mark carry-forward as done for today
+        request.session['carry_forward_done'] = str(today)
 
     categories = Category.objects.prefetch_related('task_set').all()
     form = TaskForm()
 
     # Get all unique task dates
-    task_dates = Task.objects.dates('date_added', 'day', order='DESC')
+    task_dates = Task.objects.filter(owner=request.user).dates('date_added', 'day', order='DESC')
 
     # Get the selected date from the request
     selected_date = request.GET.get('date')
@@ -46,7 +65,9 @@ def index(request):
     if request.method == 'POST' and 'add_task' in request.POST:
         form = TaskForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
             return redirect('eisens:index')
 
     if request.method == 'POST' and 'toggle_complete' in request.POST:
@@ -79,70 +100,13 @@ def index(request):
     return render(request, 'eisens/index.html', context)
 
 
+@login_required
 def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id)
+    task.completed = True
     task.delete()  # Delete the task
+    for i in Task.objects.all():
+        if i.text == task.text and i.category == task.category:
+            i.completed = True
+            i.delete()
     return redirect('eisens:index')  # Redirect back to the index page
-
-#
-# from django.shortcuts import render, redirect, get_object_or_404
-# from .models import Page, Category, Task
-# from .forms import TaskForm
-# def index(request):
-#     pages = Page.objects.all().order_by('-date_created')
-#     current_page_id = request.GET.get('page_id', None)
-#     current_page = None
-#
-#     if current_page_id:
-#         current_page = get_object_or_404(Page, id=current_page_id)
-#     else:
-#         # Default to the most recent page
-#         if pages.exists():
-#             current_page = pages.first()
-#
-#     categories = current_page.categories.all() if current_page else []
-#
-#     form = TaskForm()
-#     edit_task_id = request.GET.get('edit_task_id')
-#     edit_form = None
-#
-#     if current_page and request.method == 'POST':
-#         # Add task
-#         if 'add_task' in request.POST:
-#             form = TaskForm(request.POST)
-#             if form.is_valid():
-#                 new_task = form.save(commit=False)  # Create but don't save
-#                 # Here, specify the category
-#                 category_id = request.POST.get('category_id')
-#                 category = get_object_or_404(Category, id=category_id, page=current_page)
-#                 new_task.category = category
-#                 new_task.save()
-#                 return redirect(f'?page_id={current_page.id}')
-#
-#         # Edit task
-#         elif 'edit_task' in request.POST and edit_task_id:
-#             task_to_edit = get_object_or_404(Task, id=edit_task_id)
-#             edit_form = TaskForm(request.POST, instance=task_to_edit)
-#             if edit_form.is_valid():
-#                 edit_form.save()
-#                 return redirect('eisens:index') + f'?page_id={current_page.id}'
-#
-#     # Pre-fill edit form for GET requests
-#     if edit_task_id:
-#         task_to_edit = get_object_or_404(Task, id=edit_task_id)
-#         edit_form = TaskForm(instance=task_to_edit)
-#
-#     context = {
-#         'pages': pages,
-#         'current_page': current_page,
-#         'categories': categories,
-#         'form': form,
-#         'edit_form': edit_form,
-#         'edit_task_id': edit_task_id,
-#         'current_page_id': current_page.id if current_page else None,
-#     }
-#     return render(request, 'eisens/index.html', context)
-#
-# def new_page(request):
-#     new_page = Page.objects.create()  # Assuming Page has no required fields
-#     return redirect('eisens:index') + f'?page_id={new_page.id}'

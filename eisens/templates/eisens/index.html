@@ -30,13 +30,15 @@
             padding: 0;
         }
 
-        a, a:active, a:hover {
+        a, a:active, a:hover, .logout {
             color: black;
             text-decoration: none;
+            background: transparent;
+            border: none;
         }
 
         .side-bar {
-            height: 100vh;
+            height: 100%;
             border: solid black 1px;
             display: inline-block;
             width: fit-content;
@@ -44,6 +46,8 @@
             padding: 40px;
             text-align: left;
             overflow: scroll;
+            box-sizing: border-box;
+            resize: horizontal;
         }
 
         .del button {
@@ -161,6 +165,12 @@
             text-decoration: line-through !important;
             color: gray;
         }
+
+        .log {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -168,6 +178,17 @@
 </head>
 <body>
 <h1 style="display: inline-block;">To Do List</h1>
+    <div class="log">
+        {% if user.is_authenticated %}
+            <form action="{% url 'users:logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="logout">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'users:register' %}">Register</a>
+            <a href="{% url 'users:login' %}" style="margin-left: 20px">Log In</a>
+        {% endif %}
+    </div>
         <div class="side-bar">
             <form action="{% url 'eisens:index' %}" method="get">
                 <label for="date">Filter by Date:</label>
@@ -194,30 +215,32 @@
                 {% for category in categories %}
                     <ul>
                         {% for task in category.filtered_tasks %}
-                            <li {% if task.completed == True %} class="completed" {% endif %}>{% if task.id|stringformat:"s" == edit_task_id %}
-                                <!-- Edit form for the selected task -->
-                                    <form method="post">
+                            {% if task.owner.username == user.username %}
+                                <li {% if task.completed == True %} class="completed" {% endif %}>{% if task.id|stringformat:"s" == edit_task_id %}
+                                    <!-- Edit form for the selected task -->
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            {{ edit_form.as_p }}
+                                            <button type="submit" style="background: transparent; border: solid black 1px; font-family: 'Montserrat', sans-serif; padding: 11.3px 20px;" name="edit_task">Save</button>
+                                            <a style="background: transparent; border: solid black 1px; padding: 10px 20px;" href="{% url 'eisens:index' %}">Cancel</a>
+                                        </form>
+                                    {% else %}
+                                    <!-- Display task text with Edit button -->
+                                        <span>{{ task.text }}</span>
+                                        <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
+                                    {% endif %}
+                                    <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
                                         {% csrf_token %}
-                                        {{ edit_form.as_p }}
-                                        <button type="submit" style="background: transparent; border: solid black 1px; font-family: 'Montserrat', sans-serif; padding: 11.3px 20px;" name="edit_task">Save</button>
-                                        <a style="background: transparent; border: solid black 1px; padding: 10px 20px;" href="{% url 'eisens:index' %}">Cancel</a>
+                                        <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
                                     </form>
-                                {% else %}
-                                <!-- Display task text with Edit button -->
-                                    <span>{{ task.text }}</span>
-                                    <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
-                                {% endif %}
-                                <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
-                                    {% csrf_token %}
-                                    <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
-                                </form>
-                                <!-- Mark task as complete -->
-                                <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="task_id" value="{{ task.id }}">
-                                    <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
-                                </form>
-                            </li>
+                                    <!-- Mark task as complete -->
+                                    <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
+                                    </form>
+                                </li>
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 {% endfor %}
@@ -228,10 +251,12 @@
             <h2>{{ category.name }}</h2>
             <ul>
                 {% for task in category.filtered_tasks %}
-                    {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}
-                        <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0; font-style: italic;">{{task.text}}</li>
-                    {% else %}
-                        <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0;">{{task.text}}</li>
+                    {% if task.owner.username == user.username %}
+                        {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}
+                            <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0; font-style: italic;">{{task.text}}</li>
+                        {% else %}
+                            <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0;">{{task.text}}</li>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </ul>
