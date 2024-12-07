@@ -179,6 +179,7 @@
 <h1 style="display: inline-block;">To Do List</h1>
     <div class="log">
         {% if user.is_authenticated %}
+            Hey, {{user.username}}
             <form action="{% url 'users:logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="logout">Logout</button>
