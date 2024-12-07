@@ -13,7 +13,6 @@
         body {
             font-family: "Segoe UI", Arial, sans-serif;
             font-optical-sizing: auto;
-            font-weight: <weight>;
             font-style: normal;
             text-align: center;
             margin: 0;
@@ -226,19 +225,23 @@
                                         </form>
                                     {% else %}
                                     <!-- Display task text with Edit button -->
-                                        <span>{{ task.text }}</span>
-                                        <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
+                                        <span {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}style="margin: 30px 0;"{% endif %}>{{ task.text }}</span>
+                                        {% if task.date_added|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                            <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
+                                        {% endif %}
                                     {% endif %}
-                                    <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
-                                    </form>
-                                    <!-- Mark task as complete -->
-                                    <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="task_id" value="{{ task.id }}">
-                                        <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
-                                    </form>
+                                    {% if task.date_added|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                        <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
+                                        </form>
+                                        <!-- Mark task as complete -->
+                                        <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                                            <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
+                                        </form>
+                                    {% endif %}
                                 </li>
                             {% endif %}
                         {% endfor %}
