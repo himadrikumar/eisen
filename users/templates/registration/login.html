@@ -35,10 +35,10 @@
     {% csrf_token %}
     {{ form.as_p }}
 
-    <button name="submit" style="background: transparent; border: none;">Log in</button>
+    <button name="submit" style="background: transparent !important; border: none;">Log in</button>
     <input type="hidden" name="next"
         value="{% url 'eisens:index' %}" />
 </form>
-<a href="{% url 'users:register' %}" style="margin: 30px;">Register</a>
+<a href="{% url 'users:register' %}" style="margin: 30px;">First time? Register here.</a>
 </body>
 </html>
