@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'eisen.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL')
+        default='postgresql://eisen_sql_user:73dQLbn1wNP9JLb7o1X0BR2BHV7mloAR@dpg-cta8lpqj1k6c738jdnk0-a/eisen_sql'
     )
 }
 
