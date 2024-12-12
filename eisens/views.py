@@ -3,7 +3,7 @@ from .models import Category, Task
 from .forms import TaskForm
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserChangeForm
+from .forms import CustomUserChangeForm
 
 
 from datetime import datetime
@@ -15,12 +15,18 @@ def landing_page(request):
 @login_required
 def account_details(request):
     if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('eisens:index')  # Redirect to avoid re-posting the form
+        if 'save_changes' in request.POST:
+            form = CustomUserChangeForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                return redirect('account_details')  # Redirect to avoid re-posting the form
+        elif 'delete_account' in request.POST:
+            user = request.user
+            logout(request)  # Log out the user
+            user.delete()  # Delete the user account
+            return redirect('home')  # Redirect to home after account deletion
     else:
-        form = UserChangeForm(instance=request.user)
+        form = CustomUserChangeForm(instance=request.user)
 
     return render(request, 'eisens/account_details.html', {'form': form})
 
