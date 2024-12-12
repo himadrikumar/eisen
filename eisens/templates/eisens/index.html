@@ -180,6 +180,7 @@
     <div class="log">
         {% if user.is_authenticated %}
             Hey, {{user.username}}
+            <a href="{% url 'account_details' %}"><i class="fa-solid fa-user"></i></a>
             <form action="{% url 'users:logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="logout">Logout</button>
