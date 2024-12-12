@@ -39,6 +39,12 @@
         button:hover {
             background-color: #0056b3;
         }
+        .delete-btn {
+            background-color: #FF4D4D;
+        }
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -46,7 +52,11 @@
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Save Changes</button>
+        <button type="submit" name="save_changes">Save Changes</button>
+    </form>
+    <form method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible.');">
+        {% csrf_token %}
+        <button type="submit" name="delete_account" class="delete-btn">Delete Account</button>
     </form>
 </body>
 </html>
