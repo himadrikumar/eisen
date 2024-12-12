@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 
 from datetime import datetime
 
+def landing_page(request):
+    return render(request, 'eisens/landing_page.html')
 
 @login_required
 def index(request):
