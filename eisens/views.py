@@ -42,6 +42,7 @@ def index(request):
     carry_forward_done = request.session.get('carry_forward_done', None)
 
     if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
+        # Carry forward only incomplete tasks from previous days
         tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
 
         for task in tasks:
@@ -49,9 +50,9 @@ def index(request):
                 if not Task.objects.filter(
                     text=task.text,
                     category=task.category,
-                    owner=request.user,
-                    date_added__date=tomorrow,  # Ensure no duplicate for tomorrow
-                    completed=False
+                    date_added__date=today,
+                    completed=False,
+                    owner=request.user
                 ).exists():
                     Task.objects.create(
                         category=task.category,
@@ -60,7 +61,7 @@ def index(request):
                         completed=False,  # Ensure carried-forward tasks are incomplete
                         owner=request.user
                     )
-    
+
         # Mark carry-forward as done for today
         request.session['carry_forward_done'] = str(today)
 
