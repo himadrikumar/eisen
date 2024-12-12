@@ -41,28 +41,28 @@ def index(request):
     # Check if the carry-forward logic has already run for today
     carry_forward_done = request.session.get('carry_forward_done', None)
 
-   if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
-    tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
+    if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
+        tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
 
-    for task in tasks:
-        if not task.completed:
-            if not Task.objects.filter(
-                text=task.text,
-                category=task.category,
-                owner=request.user,
-                date_added__date=tomorrow,  # Ensure no duplicate for tomorrow
-                completed=False
-            ).exists():
-                Task.objects.create(
-                    category=task.category,
+        for task in tasks:
+            if not task.completed:
+                if not Task.objects.filter(
                     text=task.text,
-                    date_added=tomorrow,  # Set the new date_added to tomorrow
-                    completed=False,  # Ensure carried-forward tasks are incomplete
-                    owner=request.user
-                )
-
-    # Mark carry-forward as done for today
-    request.session['carry_forward_done'] = str(today)
+                    category=task.category,
+                    owner=request.user,
+                    date_added__date=tomorrow,  # Ensure no duplicate for tomorrow
+                    completed=False
+                ).exists():
+                    Task.objects.create(
+                        category=task.category,
+                        text=task.text,
+                        date_added=tomorrow,  # Set the new date_added to tomorrow
+                        completed=False,  # Ensure carried-forward tasks are incomplete
+                        owner=request.user
+                    )
+    
+        # Mark carry-forward as done for today
+        request.session['carry_forward_done'] = str(today)
 
     categories = Category.objects.prefetch_related('task_set').all()
     form = TaskForm()
@@ -107,24 +107,24 @@ def index(request):
     edit_task_id = request.GET.get('edit_task_id')
     edit_form = None
     if edit_task_id:
-    task_to_edit = get_object_or_404(Task, id=edit_task_id)
-    if request.method == 'POST' and 'edit_task' in request.POST:
-        edit_form = TaskForm(request.POST, instance=task_to_edit)
-        if edit_form.is_valid():
-            edited_task = edit_form.save(commit=False)
-
-            # Check if a similar task already exists for the same day
-            if not Task.objects.filter(
-                text=edited_task.text,
-                category=edited_task.category,
-                owner=request.user,
-                date_added__date=edited_task.date_added.date(),
-                completed=edited_task.completed
-            ).exists():
-                edited_task.save()  # Save only if no duplicates
-            return redirect('eisens:index')
-    else:
-        edit_form = TaskForm(instance=task_to_edit)
+        task_to_edit = get_object_or_404(Task, id=edit_task_id)
+        if request.method == 'POST' and 'edit_task' in request.POST:
+            edit_form = TaskForm(request.POST, instance=task_to_edit)
+            if edit_form.is_valid():
+                edited_task = edit_form.save(commit=False)
+    
+                # Check if a similar task already exists for the same day
+                if not Task.objects.filter(
+                    text=edited_task.text,
+                    category=edited_task.category,
+                    owner=request.user,
+                    date_added__date=edited_task.date_added.date(),
+                    completed=edited_task.completed
+                ).exists():
+                    edited_task.save()  # Save only if no duplicates
+                return redirect('eisens:index')
+        else:
+            edit_form = TaskForm(instance=task_to_edit)
 
 
     context = {
