@@ -15,12 +15,12 @@ def landing_page(request):
 @login_required
 def account_details(request):
     if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user)
+        form = UserChangeForm(request.POST, instance=request.owner)
         if form.is_valid():
             form.save()
             return redirect('account_details')  # Redirect to avoid re-posting the form
     else:
-        form = UserChangeForm(instance=request.user)
+        form = UserChangeForm(instance=request.owner)
 
     return render(request, 'eisens/account_details.html', {'form': form})
 
