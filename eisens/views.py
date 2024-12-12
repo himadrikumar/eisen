@@ -4,6 +4,7 @@ from .forms import TaskForm
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserChangeForm
+from django.contrib.auth import logout
 
 
 from datetime import datetime
@@ -19,7 +20,7 @@ def account_details(request):
             form = CustomUserChangeForm(request.POST, instance=request.user)
             if form.is_valid():
                 form.save()
-                return redirect('eisens:account_details')  # Redirect to avoid re-posting the form
+                return redirect('eisens:index')  # Redirect to avoid re-posting the form
         elif 'delete_account' in request.POST:
             user = request.user
             logout(request)  # Log out the user
@@ -40,29 +41,28 @@ def index(request):
     # Check if the carry-forward logic has already run for today
     carry_forward_done = request.session.get('carry_forward_done', None)
 
-    if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
-        # Carry forward only incomplete tasks from previous days
-        tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
+   if carry_forward_done != str(today):  # Compare as string since session values are stored as strings
+    tasks = Task.objects.filter(date_added__date__lt=today, owner=request.user)
 
-        for task in tasks:
-            if not task.completed:
-                if not Task.objects.filter(
-                    text=task.text,
+    for task in tasks:
+        if not task.completed:
+            if not Task.objects.filter(
+                text=task.text,
+                category=task.category,
+                owner=request.user,
+                date_added__date=tomorrow,  # Ensure no duplicate for tomorrow
+                completed=False
+            ).exists():
+                Task.objects.create(
                     category=task.category,
-                    date_added__date=today,
-                    completed=False,
+                    text=task.text,
+                    date_added=tomorrow,  # Set the new date_added to tomorrow
+                    completed=False,  # Ensure carried-forward tasks are incomplete
                     owner=request.user
-                ).exists():
-                    Task.objects.create(
-                        category=task.category,
-                        text=task.text,
-                        date_added=tomorrow,  # Set the new date_added to tomorrow
-                        completed=False,  # Ensure carried-forward tasks are incomplete
-                        owner=request.user
-                    )
+                )
 
-        # Mark carry-forward as done for today
-        request.session['carry_forward_done'] = str(today)
+    # Mark carry-forward as done for today
+    request.session['carry_forward_done'] = str(today)
 
     categories = Category.objects.prefetch_related('task_set').all()
     form = TaskForm()
@@ -82,7 +82,12 @@ def index(request):
 
     # Add filtered tasks as an attribute
     for category in categories:
-        category.filtered_tasks = category.task_set.filter(date_added__date=filter_date)
+        # Filter tasks by selected date, ensuring no duplicate logic
+        category.filtered_tasks = category.task_set.filter(
+            date_added__date=filter_date,
+            owner=request.user
+        ).distinct()
+
 
     # Handle adding, toggling, and editing tasks (same as before)
     if request.method == 'POST' and 'add_task' in request.POST:
@@ -102,14 +107,25 @@ def index(request):
     edit_task_id = request.GET.get('edit_task_id')
     edit_form = None
     if edit_task_id:
-        task_to_edit = get_object_or_404(Task, id=edit_task_id)
-        if request.method == 'POST' and 'edit_task' in request.POST:
-            edit_form = TaskForm(request.POST, instance=task_to_edit)
-            if edit_form.is_valid():
-                edit_form.save()
-                return redirect('eisens:index')
-        else:
-            edit_form = TaskForm(instance=task_to_edit)
+    task_to_edit = get_object_or_404(Task, id=edit_task_id)
+    if request.method == 'POST' and 'edit_task' in request.POST:
+        edit_form = TaskForm(request.POST, instance=task_to_edit)
+        if edit_form.is_valid():
+            edited_task = edit_form.save(commit=False)
+
+            # Check if a similar task already exists for the same day
+            if not Task.objects.filter(
+                text=edited_task.text,
+                category=edited_task.category,
+                owner=request.user,
+                date_added__date=edited_task.date_added.date(),
+                completed=edited_task.completed
+            ).exists():
+                edited_task.save()  # Save only if no duplicates
+            return redirect('eisens:index')
+    else:
+        edit_form = TaskForm(instance=task_to_edit)
+
 
     context = {
         'categories': categories,
