@@ -3,12 +3,27 @@ from .models import Category, Task
 from .forms import TaskForm
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserChangeForm
 
 
 from datetime import datetime
 
 def landing_page(request):
     return render(request, 'eisens/landing_page.html')
+
+
+@login_required
+def account_details(request):
+    if request.method == 'POST':
+        form = UserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('account_details')  # Redirect to avoid re-posting the form
+    else:
+        form = UserChangeForm(instance=request.user)
+
+    return render(request, 'eisens/account_details.html', {'form': form})
+
 
 @login_required
 def index(request):
