@@ -18,7 +18,7 @@ def account_details(request):
         form = UserChangeForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('eisens:account_details')  # Redirect to avoid re-posting the form
+            return redirect('eisens:index')  # Redirect to avoid re-posting the form
     else:
         form = UserChangeForm(instance=request.user)
 
