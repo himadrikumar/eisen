@@ -19,12 +19,12 @@ def account_details(request):
             form = CustomUserChangeForm(request.POST, instance=request.user)
             if form.is_valid():
                 form.save()
-                return redirect('account_details')  # Redirect to avoid re-posting the form
+                return redirect('eisens:account_details')  # Redirect to avoid re-posting the form
         elif 'delete_account' in request.POST:
             user = request.user
             logout(request)  # Log out the user
             user.delete()  # Delete the user account
-            return redirect('home')  # Redirect to home after account deletion
+            return redirect('eisens:index')  # Redirect to home after account deletion
     else:
         form = CustomUserChangeForm(instance=request.user)
 
