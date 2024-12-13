@@ -20,11 +20,55 @@
         a:hover {
             background-color: #0056b3;
         }
+
+        h1 {
+            width: 40vw;
+        }
+
+        .nav-right {
+            float: right;
+        }
+
+        .nav-right li {
+            margin-right: 20px;
+        }
+
+        li {
+            list-style-type: none;
+            transition: color 0.5s
+        }
+
+        li:hover {
+            color: grey;
+        }
+
+        nav {
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+        }
+
+        @media only screen and (max-width: 600px) {
+            h1 {
+                width: initial;
+            }
+        }
     </style>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><h2><a href="/">Eisen</h2></a></li>
+            <div class="nav-right">
+                <li><a href="{% url 'eisens:index' %}">Log In</a></li>
+                |
+                <li><a href="{% url 'users:register' %}">Sign Up →</a></li>
+            </div>
+        </ul>
+    </nav>
     <h1>Welcome to the Eisenhower Matrix App</h1>
     <p>Organize your tasks and stay productive!</p>
-    <a href="{% url 'eisens:index' %}">Go to App</a>
+    <a href="{% url 'eisens:index' %}">Log In →</a>
+    <a href="{% url 'users:register' %}">Sign Up →</a>
 </body>
 </html>
