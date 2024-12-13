@@ -25,19 +25,15 @@
             border: none;
         }
 
-        li {
-            list-style: none !important;
-        }
-
         form {
             border-radius: 30px;
             border: 1px solid black;
             text-align: left;
-            width: 40vw;
+            width: 30vw;
             padding: 30px;
             padding-bottom: 60px;
             position: absolute;
-            top: 50%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
@@ -50,9 +46,57 @@
         label {
             font-size: 1em;
         }
+
+        .nav-right {
+            float: right;
+            margin: 25px;
+            margin-right: 35px;
+        }
+
+        .nav-right li {
+            margin-right: 10px;
+            margin-left: 10px;
+        }
+
+        li {
+            list-style: none !important;
+            transition: color 0.5s;
+            display: inline-block;
+        }
+
+        li:hover {
+            color: gray;
+        }
+
+        nav {
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: left;
+        }
+        
+        button {
+            color: white;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
+    <nav>
+        <ul>
+            <li><h2><a href="/">Eisen</h2></a></li>
+            <div class="nav-right">
+                <li><a href="{% url 'eisens:index' %}">Log In</a></li>
+                |
+                <li><a href="{% url 'users:register' %}">Sign Up</a></li>
+            </div>
+        </ul>
+    </nav>
 <form method="post" action="{% url 'users:register' %}">
     {% csrf_token %}
     {{ form.as_p }}
