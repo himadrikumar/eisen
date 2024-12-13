@@ -10,19 +10,28 @@
             text-align: center;
             padding: 50px;
         }
-        a {
-            text-decoration: none;
+        .main a {
             color: white;
             background-color: #007BFF;
             padding: 10px 20px;
             border-radius: 5px;
         }
-        a:hover {
+
+        .main {
+            margin: auto;
+        }
+
+        a {
+            text-decoration: none;
+        }
+        
+        .main a:hover {
             background-color: #0056b3;
         }
 
         h1 {
             width: 40vw;
+            font-size: 3em;
         }
 
         .nav-right {
@@ -46,6 +55,10 @@
             width: 100vw;
             padding: 0;
             margin: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: grey;
         }
 
         @media only screen and (max-width: 600px) {
@@ -66,9 +79,11 @@
             </div>
         </ul>
     </nav>
-    <h1>Welcome to the Eisenhower Matrix App</h1>
-    <p>Organize your tasks and stay productive!</p>
-    <a href="{% url 'eisens:index' %}">Log In →</a>
-    <a href="{% url 'users:register' %}">Sign Up →</a>
+    <div class="main">
+        <h1>Welcome to the Eisenhower Matrix App</h1>
+        <p>Organize your tasks and stay productive!</p>
+        <a href="{% url 'eisens:index' %}">Log In →</a>
+        <a href="{% url 'users:register' %}">Sign Up →</a>
+    </div>
 </body>
 </html>
