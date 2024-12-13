@@ -24,11 +24,74 @@
             background: transparent;
             border: none;
         }
+        
+        .nav-right {
+            float: right;
+            margin: 25px;
+            margin-right: 35px;
+        }
+
+        .nav-right li {
+            margin-right: 10px;
+            margin-left: 10px;
+            color: black;
+        }
+
+        li {
+            list-style: none !important;
+            display: inline-block;
+            color: gray;
+        }
+
+        a:hover {
+            color: gray;
+        }
+
+        nav {
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: left;
+        }
+        
+        button {
+            color: white;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        ul {
+            padding: 0 !important;
+        }
+
+        .msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%)
+        }
     </style>
 </head>
 <body>
-<p>You have been logged out. Thankyou for visiting.</p>
-
-<a href="{% url 'eisens:index' %}">Back to Home</a>
+    <nav>
+        <ul>
+            <li><h2 style="margin-left: 45px"><a href="{% url 'eisens:landing_page' %}">Eisen</h2></a></li>
+            <div class="nav-right">
+                <li><a href="{% url 'eisens:index' %}">Log In</a></li>
+                |
+                <li><a href="{% url 'users:register' %}">Sign Up</a></li>
+            </div>
+        </ul>
+    </nav>
+    <div class="msg">
+        <p>You have been logged out. Thankyou for visiting.</p>
+        
+        <a href="{% url 'eisens:index' %}">Back to Home</a>
+    </div>
 </body>
 </html>
