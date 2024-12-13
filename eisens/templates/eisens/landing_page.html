@@ -18,11 +18,15 @@
         }
 
         .main {
-            margin: auto;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%)
+            text-align: left;
         }
 
         a {
             text-decoration: none;
+            color: black;
         }
         
         .main a:hover {
@@ -36,6 +40,7 @@
 
         .nav-right {
             float: right;
+            margin: 25px;
         }
 
         .nav-right li {
@@ -59,6 +64,7 @@
             top: 0;
             left: 0;
             background: grey;
+            text-align: left;
         }
 
         @media only screen and (max-width: 600px) {
@@ -81,7 +87,7 @@
     </nav>
     <div class="main">
         <h1>Welcome to the Eisenhower Matrix App</h1>
-        <p>Organize your tasks and stay productive!</p>
+        <p style="margin-bottom: 20px">Organize your tasks and stay productive!</p>
         <a href="{% url 'eisens:index' %}">Log In →</a>
         <a href="{% url 'users:register' %}">Sign Up →</a>
     </div>
