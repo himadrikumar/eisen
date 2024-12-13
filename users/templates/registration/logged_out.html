@@ -75,6 +75,14 @@
             left: 50%;
             transform: translate(-50%, -50%)
         }
+        
+        .button {
+            color: white;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +99,7 @@
     <div class="msg">
         <p>You have been logged out. Thankyou for visiting.</p>
         
-        <a href="{% url 'eisens:index' %}">Back to Home</a>
+        <a class="button" href="{% url 'eisens:index' %}">Back to Home</a>
     </div>
 </body>
 </html>
