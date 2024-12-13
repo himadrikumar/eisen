@@ -30,7 +30,6 @@
             border: 1px solid black;
             text-align: left;
             width: 30vw;
-            height: 70vh;
             padding: 30px;
             padding-bottom: 60px;
             position: absolute;
@@ -97,7 +96,7 @@
 <body>
     <nav>
         <ul>
-            <li><h2><a href="/">Eisen</h2></a></li>
+            <li><h2 style="margin-left: 45px"><a href="{% url 'eisens:landing_page' %}">Eisen</h2></a></li>
             <div class="nav-right">
                 <li><a href="{% url 'eisens:index' %}">Log In</a></li>
                 |
