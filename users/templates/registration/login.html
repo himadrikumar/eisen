@@ -92,6 +92,13 @@
         ul {
             padding: 0 !important;
         }
+
+        #reg {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
@@ -118,6 +125,6 @@
     <input type="hidden" name="next"
         value="{% url 'eisens:index' %}" />
 </form>
-<a href="{% url 'users:register' %}">Register</a>
+<a id="reg" href="{% url 'users:register' %}">New to Eisen? Register Here →</a>
 </body>
 </html>
