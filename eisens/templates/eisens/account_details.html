@@ -9,18 +9,20 @@
             font-family: Arial, sans-serif;
             padding: 20px;
         }
+        
         form {
             max-width: 400px;
             margin: auto;
             padding: 20px;
-            border: 1px solid #ddd;
             border-radius: 5px;
         }
+        
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+        
         input {
             width: 100%;
             padding: 8px;
@@ -28,6 +30,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+        
         button {
             background-color: #272762;
             color: white;
@@ -36,27 +39,36 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        
         button:hover {
             background-color: #0056b3;
         }
+        
         .delete-btn {
             background-color: #ae2525;
         }
+        
         .delete-btn:hover {
             background-color: #cc0000;
+        }
+
+        .cont {
+            border: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
     <h1>Account Details</h1>
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" name="save_changes">Save Changes</button>
-    </form>
-    <form method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible.');">
-        {% csrf_token %}
-        <button type="submit" name="delete_account" class="delete-btn">Delete Account</button>
-    </form>
+    <div class="cont">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" name="save_changes">Save Changes</button>
+        </form>
+        <form method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible.');">
+            {% csrf_token %}
+            <button type="submit" name="delete_account" class="delete-btn">Delete Account</button>
+        </form>
+    </div>
 </body>
 </html>
