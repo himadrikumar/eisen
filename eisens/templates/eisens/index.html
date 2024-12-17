@@ -266,16 +266,39 @@
         <div class="box">
             <h2>{{ category.name }}</h2>
             <ul>
-                {% for task in category.filtered_tasks %}
-                    {% if task.owner.username == user.username %}
-                        {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}
-                            <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0; font-style: italic;">{{task.text}}</li>
-                        {% else %}
-                            <li {% if task.completed == True %} class="completed" {% endif %} style="padding: 7px 0;">{{task.text}}</li>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            </ul>
+                        {% for task in category.filtered_tasks %}
+                            {% if task.owner.username == user.username %}
+                                <li {% if task.completed == True %} class="completed" {% endif %}>{% if task.id|stringformat:"s" == edit_task_id %}
+                                    <!-- Edit form for the selected task -->
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            {{ edit_form.as_p }}
+                                            <button type="submit" style="background: transparent; border: solid black 1px; font-family: 'Montserrat', sans-serif; padding: 11.3px 20px;" name="edit_task">Save</button>
+                                            <a style="background: transparent; border: solid black 1px; padding: 10px 20px;" href="{% url 'eisens:index' %}">Cancel</a>
+                                        </form>
+                                    {% else %}
+                                    <!-- Display task text with Edit button -->
+                                        <span {% if task.date_added|date:"Y-m-d" != today|date:"Y-m-d" %}style="margin: 30px 0;"{% endif %}>{{ task.text }}</span>
+                                        {% if task.date_added|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                            <div class="edit"><a href="?edit_task_id={{ task.id }}"><i class="fa-solid fa-pencil"></i></a></div>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if task.date_added|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                        <form action="{% url 'eisens:delete_task' task.id %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <div class="del"><button type="submit"><i class="fa-solid fa-trash"></i></button></i></div>
+                                        </form>
+                                        <!-- Mark task as complete -->
+                                        <form action="{% url 'eisens:index' %}" method="post" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                                            <button type="submit" class="tog" name="toggle_complete"><i class="fa-solid fa-check"></i></button>
+                                        </form>
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
         </div>
         {% endfor %}
 </div>
