@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Category, Task
 from .forms import TaskForm
 from datetime import date, timedelta
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserChangeForm
 from django.contrib.auth import logout
-
 
 from datetime import datetime
 
@@ -37,6 +37,41 @@ def index(request):
     # Get today's date
     today = date.today()
     tomorrow = today + timedelta(days=1)
+    yesterday = today - timedelta(days=1)
+
+    # Check if carry-forward logic has already been executed today
+    ccarry_forward_done = request.session.get('carry_forward_done', '')
+
+    if carry_forward_done != str(today):
+        # Filter incomplete tasks from previous days belonging to the current user
+        incomplete_tasks = Task.objects.filter(
+            date_added__date_lt=today,  # Tasks added before today
+            completed=False,             # Tasks that are incomplete
+            owner=request.user           # Tasks owned by the current user
+        )
+
+        for task in incomplete_tasks:
+            # Check if the task already exists for today to avoid duplication
+            duplicate_exists = Task.objects.filter(
+                text=task.text,
+                category=task.category,
+                date_added__date=today,  # Already created for today
+                owner=request.user       # Owned by the same user
+            ).exists()
+
+            if not duplicate_exists:
+                # Create the carried-forward task
+                Task.objects.create(
+                    category=task.category,
+                    text=task.text,
+                    date_added=today,  # Assign today's date
+                    completed=False,   # Keep it incomplete
+                    owner=request.user
+                )
+
+        # Mark carry-forward as done for today
+        request.session['carry_forward_done'] = str(today)
+
 
     # Check if the carry-forward logic has already run for today
     # carry_forward_done = request.session.get('carry_forward_done', '')
@@ -151,7 +186,7 @@ def delete_task(request, task_id):
     task.completed = True
     task.delete()  # Delete the task
     for i in Task.objects.all():
-        if i.text == task.text and i.category == task.category:
+        if i.text == task.text and i.category == task.category and i.task_id == task.task_id:
             i.completed = True
             i.delete()
     return redirect('eisens:index')  # Redirect back to the index page
