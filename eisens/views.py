@@ -40,7 +40,7 @@ def index(request):
     yesterday = today - timedelta(days=1)
 
     # Check if carry-forward logic has already been executed today
-    ccarry_forward_done = request.session.get('carry_forward_done', '')
+    carry_forward_done = request.session.get('carry_forward_done', '')
 
     if carry_forward_done != str(today):
         # Filter incomplete tasks from previous days belonging to the current user
