@@ -37,7 +37,6 @@ def index(request):
     # Get today's date
     today = date.today()
     tomorrow = today + timedelta(days=1)
-    yesterday = today - timedelta(days=1)
 
     # Check if carry-forward logic has already been executed today
     carry_forward_done = request.session.get('carry_forward_done', '')
@@ -71,39 +70,6 @@ def index(request):
 
         # Mark carry-forward as done for today
         request.session['carry_forward_done'] = str(today)
-
-
-    # Check if the carry-forward logic has already run for today
-    # carry_forward_done = request.session.get('carry_forward_done', '')
-
-    # if carry_forward_done != str(today):  # Only carry forward if not already done today
-    #     # Filter only incomplete tasks that are not completed and not already carried forward
-    #     incomplete_tasks = Task.objects.filter(
-    #         date_added__date__lt=today,  # Tasks from previous days
-    #         completed=False,  # Only incomplete tasks
-    #         owner=request.user  # Ensure only the current user's tasks
-    #     )
-
-    #     for task in incomplete_tasks:
-    #         # Check if the task already exists for tomorrow to avoid duplication
-    #         if not Task.objects.filter(
-    #             text=task.text,
-    #             category=task.category,
-    #             owner=request.user,
-    #             date_added__date=tomorrow,  # Ensure no duplicate task for tomorrow
-    #             completed=False
-    #         ).exists():
-    #             Task.objects.create(
-    #                 category=task.category,
-    #                 text=task.text,
-    #                 date_added=tomorrow,  # Set the new task date to tomorrow
-    #                 completed=False,  # Ensure carried-forward tasks are incomplete
-    #                 owner=request.user
-    #             )
-
-    #     # Mark carry-forward as done for today
-    #     request.session['carry_forward_done'] = str(today)
-        
 
     categories = Category.objects.prefetch_related('task_set').all()
     form = TaskForm()

@@ -250,7 +250,7 @@
                             {% if task.owner.username == user.username %}
                                 <li {% if task.completed == True %} class="completed" {% endif %}>{% if task.id|stringformat:"s" == edit_task_id %}
                                     <!-- Edit form for the selected task -->
-                                        <form method="post">
+                                        <form method="post" style="z-index: 5000;">
                                             {% csrf_token %}
                                             {{ edit_form.as_p }}
                                             <button type="submit" style="background: transparent; border: solid black 1px; font-family: 'Montserrat', sans-serif; padding: 11.3px 20px;" name="edit_task">Save</button>
