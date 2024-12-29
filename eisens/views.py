@@ -72,7 +72,7 @@ def index(request):
         request.session['carry_forward_done'] = str(today)
 
     categories = Category.objects.prefetch_related('task_set').all()
-    form = TaskForm()
+    form = TaskForm() 
 
     # Get all unique task dates
     task_dates = Task.objects.filter(owner=request.user).dates('date_added', 'day', order='DESC')
