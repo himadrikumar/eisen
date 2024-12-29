@@ -220,7 +220,7 @@
             <a href="{% url 'eisens:account_details' %}"><i class="fa-solid fa-user"></i></a>
             <form action="{% url 'users:logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="logout">Logout</button>
+                <button type="submit" class="logout" style="margin-right: 150px;">Logout</button>
             </form>
         {% else %}
             <a href="{% url 'users:register' %}">Register</a>
