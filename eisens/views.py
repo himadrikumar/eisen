@@ -152,7 +152,7 @@ def delete_task(request, task_id):
     task.completed = True
     task.delete()  # Delete the task
     for i in Task.objects.all():
-        if i.text == task.text and i.category == task.category and i.id == task.task_id:
+        if i.text == task.text and i.category == task.category and i.id == task.id:
             i.completed = True
             i.delete()
     return redirect('eisens:index')  # Redirect back to the index page
