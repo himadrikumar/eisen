@@ -37,6 +37,7 @@ def index(request):
     # Get today's date
     today = date.today()
     tomorrow = today + timedelta(days=1)
+    yesterday = today - timedelta(days=1)
 
     # Check if carry-forward logic has already been executed today
     carry_forward_done = request.session.get('carry_forward_done', '')
@@ -44,7 +45,7 @@ def index(request):
     if carry_forward_done != str(today):
         # Filter incomplete tasks from previous days belonging to the current user
         incomplete_tasks = Task.objects.filter(
-            date_added__date__lt=today,  # Tasks added before today
+            date_added__date=yesterday,  # Tasks added before today
             completed=False,             # Tasks that are incomplete
             owner=request.user           # Tasks owned by the current user
         )
