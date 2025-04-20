@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Thank you for visiting - ToDo List</title>
+    <title>Login - ToDo List</title>
     <style>
         html {
             padding: 0;
@@ -24,75 +24,11 @@
             background: transparent;
             border: none;
         }
-        
-        .nav-right {
-            float: right;
-            margin: 25px;
-            margin-right: 35px;
-        }
-
-        .nav-right li {
-            margin-right: 10px;
-            margin-left: 10px;
-            color: black;
-        }
-
-        li {
-            list-style: none !important;
-            display: inline-block;
-            color: gray;
-        }
-
-        a:hover {
-            color: gray;
-        }
-
-        nav {
-            width: 100vw;
-            padding: 0;
-            margin: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            text-align: left;
-        }
-
-        ul {
-            padding: 0 !important;
-        }
-
-        .msg {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%)
-        }
-        
-        .button {
-            color: white;
-            background-color: #272762;
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            transition: background-color 0.5s;
-        }
     </style>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><h2 style="margin-left: 45px"><a href="{% url 'eisens:landing_page' %}">Eisen</h2></a></li>
-            <div class="nav-right">
-                <li><a href="{% url 'eisens:index' %}">Log In</a></li>
-                |
-                <li><a href="{% url 'users:register' %}">Sign Up</a></li>
-            </div>
-        </ul>
-    </nav>
-    <div class="msg">
-        <p style="margin-bottom: 30px;">You have been logged out. Thankyou for visiting.</p>
-        
-        <a class="button" href="{% url 'eisens:index' %}">Back to Home</a>
-    </div>
+<p>You have been logged out. Thankyou for visiting.</p>
+
+<a href="{% url 'eisens:index' %}">Back to Home</a>
 </body>
 </html>

@@ -24,10 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-#)&@+^e#m$h6_y4e24e53z$&j2wo02r%&gdopp^(ugcxkmgxcy'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+FERNET_KEY = "F5za1EbYgQzYlqneu_eVtKjtvuWMXTLuRkWsavvJbNo="
 
-ALLOWED_HOSTS = ['eisen.onrender.com']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+ALLOWED_HOSTS = ['himadriK.pythonanywhere.com']
 
 # Application definition
 
@@ -78,18 +80,18 @@ WSGI_APPLICATION = 'eisen.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://eisen_sql_user:73dQLbn1wNP9JLb7o1X0BR2BHV7mloAR@dpg-cta8lpqj1k6c738jdnk0-a/eisen_sql'
-    )
-}
-
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL')
+#     )
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
